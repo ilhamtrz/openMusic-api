@@ -9,7 +9,7 @@
     "lint": "eslint ./src",
     "migrate": "node-pg-migrate"
   },
-  "author": "",
+  "author": "Ilham Triza Kurniawan",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.5.0",
