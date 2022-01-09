@@ -49,21 +49,41 @@ class PlaylistSongsHandler {
     }
   }
 
-  async getPlaylistSongsHandler(request) {
-    const { id } = request.params;
-    const { id: credentialId } = request.auth.credentials;
+  async getPlaylistSongsHandler(request, h) {
+    try {
+      const { id } = request.params;
+      const { id: credentialId } = request.auth.credentials;
 
-    await this._playlistsService.verifyPlaylistOwner(id, credentialId);
+      await this._playlistsService.verifyPlaylistOwner(id, credentialId);
 
-    const playlist = await this._playlistsService.getPlaylistById(id);
-    playlist.songs = await this._playlistSongsService.getSongsFromPlaylist(id);
+      const playlist = await this._playlistsService.getPlaylistById(id);
+      playlist.songs = await this._playlistSongsService.getSongsFromPlaylist(id);
 
-    return {
-      status: 'success',
-      data: {
-        playlist,
-      },
-    };
+      return {
+        status: 'success',
+        data: {
+          playlist,
+        },
+      };
+    } catch (error) {
+      if (error instanceof ClientError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message,
+        });
+        response.code(error.statusCode);
+        return response;
+      }
+
+      // Server ERROR!
+      const response = h.response({
+        status: 'error',
+        message: 'Maaf, terjadi kegagalan pada server kami.',
+      });
+      response.code(500);
+      console.error(error);
+      return response;
+    }
   }
 
   async deletePlaylistSongByIdHandler(request, h) {
