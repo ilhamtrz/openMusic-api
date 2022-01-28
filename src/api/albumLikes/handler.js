@@ -62,7 +62,8 @@ class AlbumLikesHandler {
     try {
       const { albumId } = request.params;
 
-      const likes = await this._service.getLikesCount(albumId);
+      const data = await this._service.getLikesCount(albumId);
+      const likes = data.count;
 
       const response = h.response({
         status: 'success',
@@ -70,7 +71,9 @@ class AlbumLikesHandler {
           likes,
         },
       });
+      response.header('X-Data-Source', data.source);
       response.code(200);
+
       return response;
     } catch (error) {
       if (error instanceof ClientError) {
