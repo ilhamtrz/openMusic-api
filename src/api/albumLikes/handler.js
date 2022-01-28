@@ -1,0 +1,94 @@
+const ClientError = require('../../exceptions/ClientError');
+
+class AlbumLikesHandler {
+  constructor(service) {
+    this._service = service;
+
+    this.postLikeHandler = this.postLikeHandler.bind(this);
+    this.getLikeHandler = this.getLikeHandler.bind(this);
+  }
+
+  async postLikeHandler(request, h) {
+    try {
+      const { albumId } = request.params;
+      const { id: credentialId } = request.auth.credentials;
+
+      const alreadyLiked = await this._service.checkAlreadyLike(credentialId, albumId);
+
+      if (!alreadyLiked) {
+        const likeId = await this._service.addAlbumLike(credentialId, albumId);
+
+        const response = h.response({
+          status: 'success',
+          message: `Berhasil melakukan like pada album dengan id: ${likeId}`,
+        });
+        response.code(201);
+        return response;
+      }
+
+      await this._service.deleteAlbumLike(credentialId, albumId);
+
+      const response = h.response({
+        status: 'success',
+        message: 'Berhasil melakukan unlike',
+      });
+      response.code(201);
+      return response;
+    } catch (error) {
+      if (error instanceof ClientError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message,
+        });
+        response.code(error.statusCode);
+        return response;
+      }
+
+      // Server ERROR!
+      const response = h.response({
+        status: 'error',
+        message: 'Maaf, terjadi kegagalan pada server kami.',
+      });
+      response.code(500);
+      console.error(error);
+      return response;
+    }
+  }
+
+  async getLikeHandler(request, h) {
+    try {
+      const { albumId } = request.params;
+
+      const likes = await this._service.getLikesCount(albumId);
+
+      const response = h.response({
+        status: 'success',
+        data: {
+          likes,
+        },
+      });
+      response.code(201);
+      return response;
+    } catch (error) {
+      if (error instanceof ClientError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message,
+        });
+        response.code(error.statusCode);
+        return response;
+      }
+
+      // Server ERROR!
+      const response = h.response({
+        status: 'error',
+        message: 'Maaf, terjadi kegagalan pada server kami.',
+      });
+      response.code(500);
+      console.error(error);
+      return response;
+    }
+  }
+}
+
+module.exports = AlbumLikesHandler;
