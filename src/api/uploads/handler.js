@@ -11,11 +11,11 @@ class UploadsHandler {
 
   async postUploadImageHandler(request, h) {
     try {
-      const { data } = request.payload;
-      this._validator.validateImageHeaders(data.hapi.headers);
+      const { cover } = request.payload;
+      this._validator.validateImageHeaders(cover.hapi.headers);
       const { id } = request.params;
 
-      const filename = await this._service.writeFile(data, data.hapi);
+      const filename = await this._service.writeFile(cover, cover.hapi);
       const coverUrl = `http://${process.env.HOST}:${process.env.PORT}/upload/images/${filename}`;
 
       await this._albumsService.addCoverAlbumById(id, coverUrl);
