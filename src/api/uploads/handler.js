@@ -21,9 +21,7 @@ class UploadsHandler {
       await this._albumsService.addCoverAlbumById(id, coverUrl);
       const response = h.response({
         status: 'success',
-        data: {
-          coverUrl,
-        },
+        message: 'Sampul berhasil diunggah',
       });
       response.code(201);
       return response;
