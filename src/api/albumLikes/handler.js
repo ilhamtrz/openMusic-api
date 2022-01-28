@@ -1,8 +1,9 @@
 const ClientError = require('../../exceptions/ClientError');
 
 class AlbumLikesHandler {
-  constructor(service) {
+  constructor(service, albumsService) {
     this._service = service;
+    this._albumsService = albumsService;
 
     this.postLikeHandler = this.postLikeHandler.bind(this);
     this.getLikeHandler = this.getLikeHandler.bind(this);
@@ -12,6 +13,8 @@ class AlbumLikesHandler {
     try {
       const { albumId } = request.params;
       const { id: credentialId } = request.auth.credentials;
+
+      await this._albumsService.checkAlbumExist(albumId);
 
       const alreadyLiked = await this._service.checkAlreadyLike(credentialId, albumId);
 
@@ -67,7 +70,7 @@ class AlbumLikesHandler {
           likes,
         },
       });
-      response.code(201);
+      response.code(200);
       return response;
     } catch (error) {
       if (error instanceof ClientError) {

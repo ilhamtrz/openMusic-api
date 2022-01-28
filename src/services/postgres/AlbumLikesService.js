@@ -10,7 +10,7 @@ class AlbumLikesService {
   async addAlbumLike(userId, albumId) {
     const id = `like-${nanoid(16)}`;
     const query = {
-      text: 'INSERT INTO user_album_likes VALUES ($1, &2, &3) returning id',
+      text: 'INSERT INTO user_album_likes VALUES ($1, $2, $3) returning id',
       values: [id, userId, albumId],
     };
 
